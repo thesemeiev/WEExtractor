@@ -33,9 +33,10 @@ fi
 chmod +x "${SCRIPT_DIR}/scripts/bundle_repkg_linux.sh"
 bash "${SCRIPT_DIR}/scripts/bundle_repkg_linux.sh"
 
-"${PYTHON}" -m venv .venv-build
-# shellcheck disable=SC1091
-source .venv-build/bin/activate
+# Повторный запуск: без --clear venv часто пишет «already exists» и обрывает скрипт.
+"${PYTHON}" -m venv .venv-build --clear
+# Активация venv через . вместо source — тот же эффект.
+. "${SCRIPT_DIR}/.venv-build/bin/activate"
 python -m pip install -U pip wheel
 python -m pip install -r requirements-build.txt
 

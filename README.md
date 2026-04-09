@@ -1,76 +1,117 @@
 # Wallpaper Engine Extractor
 
-## Скачать (без установки Python)
+Небольшая утилита: берёшь **одну папку обоев** из Workshop (ту, где лежат `project.json`, `scene.pkg` и остальное), на выходе получаешь аккуратно разложенные файлы и картинки из текстур.  
+Python на компьютере пользователю **не нужен** — в [релизах](https://github.com/thesemeiev/WEExtractor/releases/latest) лежат готовые архивы.
 
-- **Последний релиз:** [github.com/thesemeiev/WEExtractor/releases/latest](https://github.com/thesemeiev/WEExtractor/releases/latest) — скачай zip для Windows или Linux, распакуй и запусти `Run.sh` / `PKG-Extractor.exe`.
-- **Исходники:** [github.com/thesemeiev/WEExtractor](https://github.com/thesemeiev/WEExtractor) (`git clone`).
-
-Пока в Releases нет файлов — собери портативку скриптами `build_portable_linux.sh` / `build_portable_windows.ps1` и [опубликуй первый релиз](https://github.com/thesemeiev/WEExtractor/releases/new) с прикреплёнными архивами.
+[![Версия](https://img.shields.io/github/v/release/thesemeiev/WEExtractor?label=релиз&logo=github)](https://github.com/thesemeiev/WEExtractor/releases/latest)
 
 ---
 
-## Wallpaper Engine — папка обоев
+## Скачать и запустить
 
-Укажи **одну папку** проекта (как в Workshop: `…/workshop/content/431960/<id>/`).
+| | |
+|--|--|
+| **Сборки** | [**Releases → Latest**](https://github.com/thesemeiev/WEExtractor/releases/latest) — скачай zip под свою систему. |
+| **Код** | [Репозиторий](https://github.com/thesemeiev/WEExtractor) — если хочешь собрать сам или помочь с проектом. |
 
-Все файлы `*.pkg` распаковываются **только через [RePKG](https://github.com/notscuffed/repkg)** (notscuffed/repkg). После распаковки тот же бинарник конвертирует найденные `.tex` в изображения (каталог `tex_png/` по умолчанию).
+**Linux:** распакуй архив → зайди в папку → `./Run.sh` (или запусти `PKG-Extractor`).  
+Если не стартует: `chmod +x Run.sh PKG-Extractor repkg/RePKG`.
 
-**CLI:**
+**Windows:** распакуй → `Run.bat` или `PKG-Extractor.exe`.
+
+Внутри архива рядом с программой лежит папка **`repkg/`** с [RePKG](https://github.com/notscuffed/repkg) — так не нужно ничего ставить в систему. Если её нет (редкая сборка без dotnet), укажи путь к RePKG вручную в окне программы или положи его в `PATH`.
+
+---
+
+## Что она делает
+
+1. Копирует «рассыпные» файлы обоев (превью, видео, json и т.д.) в подпапку **`loose/`** — структура путей как в оригинале.  
+2. Каждый **`*.pkg`** распаковывает через **RePKG** — в **`pkg/<имя пакета>/`**.  
+3. В конце прогоняет тот же RePKG по **`.tex`** и складывает картинки в **`tex_png/`** (или в папку из опции `--tex-png-dir` в консоли).  
+4. Пишет **`manifest.json`** — что произошло и если что-то пошло не так.
+
+Отдельный установщик не нужен: распаковал папку — работаешь из неё.
+
+---
+
+## Окно программы (GUI)
+
+1. Укажи **папку обоев** — обычно что-то вроде  
+   `…/steam/steamapps/workshop/content/431960/<id>/`
+2. Укажи **куда сохранить** результат.
+3. Включи или выключи **режим рабочего стола** (см. ниже).
+4. Поле **RePKG** можно оставить пустым, если в архиве есть `repkg/RePKG` (Linux) или `repkg/RePKG.exe` (Windows).
+5. **Извлечь обои** — дождись окончания, лог смотри внизу окна.
+
+Кнопка **«Открыть папку вывода»** — открывает проводником каталог с результатом.
+
+---
+
+## Режим рабочего стола
+
+Когда включён, программа старается оставить то, что имеет смысл как **картинка или видео для стола**: без мелких превью, лишних json, шейдеров и аудио.  
+Для содержимого пакетов после распаковки лишние файлы **удаляются** из деревьев в `pkg/`, чтобы не копить мусор.
+
+Пороги размера картинок и видео можно подстроить в консоли (`--min-image-w`, `--min-image-h`, `--min-video-bytes`).
+
+---
+
+## Консоль (для своих скриптов)
+
+Нужны установленные **Python 3** и зависимости из репозитория (для разработки). Примеры:
 
 ```bash
 python3 we_wallpaper.py "/path/to/wallpaper_folder" -o "/path/to/output"
 python3 we_wallpaper.py "/path/to/wallpaper_folder" -o "/path/to/output" --desktop
-# Явный путь к RePKG (иначе — встроенный в сборке, third_party/repkg/* или PATH):
 python3 we_wallpaper.py "/path/to/wallpaper_folder" -o "/path/to/output" --repkg /path/to/RePKG
 ```
 
-Опции:
-
-- `--desktop` — режим «как обои на стол»: в `loose/` не копируются превью, мелкие картинки, `.json`, веб-стек (кроме type=web), аудио; после распаковки каждого пакета RePKG лишние файлы **удаляются** из соответствующей папки в `pkg/`. Пороги: `--min-image-w`, `--min-image-h` (по умолчанию 640×480), `--min-video-bytes` (по умолчанию 100000).
-- `--repkg` — без аргумента: встроенный рядом с программой или `PATH`; с путём — конкретный исполняемый файл.
-- `--tex-png-dir` — куда писать картинки из `.tex` (по умолчанию `<output>/tex_png`).
-
-**Результат в `output`:**
-
-- `loose/` — все файлы **кроме** `.pkg`, дерево путей как в исходной папке.
-- `pkg/<имя>/` — содержимое каждого `*.pkg` после **RePKG extract**.
-- `tex_png/` (или `--tex-png-dir`) — результат **RePKG** для `.tex` по всему дереву вывода.
-- `manifest.json` — отчёт (в т.ч. код выхода RePKG по каждому пакету).
-
-Если RePKG завершился с ошибкой для конкретного `.pkg`, в `manifest.json` будет запись об ошибке.
-
-**GUI:** ищет RePKG (встроенный `repkg/`, опциональный путь в поле, затем `PATH`).
+- **`--repkg`** без пути — ищется встроенный рядом с проектом или в `PATH`.  
+- **`--tex-png-dir`** — куда сложить картинки из `.tex` (по умолчанию `<output>/tex_png`).
 
 ---
 
-## Встроенный RePKG в портативной сборке
+## RePKG и лицензии
 
-- **Windows:** `build_portable_windows.ps1` скачивает официальный `RePKG.zip` и кладёт `repkg/RePKG.exe` в папку сборки.
-- **Linux:** перед PyInstaller запускается `scripts/bundle_repkg_linux.sh` (нужны **git** и **dotnet SDK 8+**). Собирается self-contained `RePKG` под `linux-x64` и копируется в `repkg/RePKG`. Если `dotnet` нет — сборка идёт дальше, но встроенного бинарника не будет (нужен RePKG в `PATH` или поле в GUI).
+Распаковка пакетов и конвертация текстур опирается на открытый проект **[notscuffed/repkg](https://github.com/notscuffed/repkg)** (MIT).  
+В портативной сборке лежат его уведомления и лицензии в **`repkg/`** (в т.ч. `THIRD-PARTY-NOTICES.txt`).
 
-Исходники и лицензия RePKG: [notscuffed/repkg](https://github.com/notscuffed/repkg) (MIT). Уведомления см. `repkg/THIRD-PARTY-NOTICES.txt` в сборке.
+Сборка **Linux** при желании сама собирает RePKG из исходников (`scripts/bundle_repkg_linux.sh`, нужны **git** и **dotnet**).  
+**Windows**-скрипт сборки подтягивает готовый бинарник из релизов RePKG.
 
 ---
 
-## Сборка портативной версии
+## Собрать портативку самому
 
-См. `build_portable_linux.sh` / `build_portable_windows.ps1` (нужны Python, tkinter, PyInstaller).
+На машине, где ставишь только **для сборки**: Python 3, **tkinter**, **PyInstaller** (ставится скриптом в виртуальное окружение).
 
 ```bash
 chmod +x build_portable_linux.sh
 ./build_portable_linux.sh
 ```
 
-Запуск: `dist/PKG-Extractor-Portable-Linux/Run.sh`
+Готовая папка: **`dist/PKG-Extractor-Portable-Linux/`**.  
+Если PyInstaller капризничает на свежем Python, попробуй:
+
+```bash
+PYTHON_BIN=python3.12 ./build_portable_linux.sh
+```
+
+На Windows: **`build_portable_windows.ps1`** в PowerShell (нужны Python с tkinter и доступ в интернет для загрузки RePKG).
 
 ---
 
-## Файлы
+## Файлы в репозитории
 
-| Модуль | Назначение |
-|--------|------------|
-| `we_wallpaper.py` | Папка обоев → loose + pkg (RePKG) + TEX + manifest |
-| `we_media_filter.py` | Эвристики для `--desktop` и подрезки дерева после RePKG |
-| `we_repkg.py` | Поиск встроенного RePKG, вызов extract / TEX |
-| `scripts/bundle_repkg_linux.sh` | Сборка RePKG для Linux при `build_portable_linux.sh` |
-| `pkg_extractor_gui.py` | Tk GUI |
+| Файл | Зачем |
+|------|--------|
+| `pkg_extractor_gui.py` | Окно программы |
+| `we_wallpaper.py` | Логика: папка → loose, pkg, tex, manifest |
+| `we_repkg.py` | Запуск RePKG |
+| `we_media_filter.py` | Фильтры для режима рабочего стола |
+| `build_portable_linux.sh` / `build_portable_windows.ps1` | Сборка «распаковал — запустил» |
+| `scripts/bundle_repkg_linux.sh` | Сборка RePKG под Linux |
+
+---
+
+Если что-то не взлетело — загляни в **`manifest.json`** в папке вывода или открой [Issues](https://github.com/thesemeiev/WEExtractor/issues) в репозитории.
