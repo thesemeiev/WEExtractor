@@ -4,6 +4,9 @@
 Python на компьютере пользователю **не нужен** — в [релизах](https://github.com/thesemeiev/WEExtractor/releases/latest) лежат готовые архивы.
 
 [![Версия](https://img.shields.io/github/v/release/thesemeiev/WEExtractor?label=релиз&logo=github)](https://github.com/thesemeiev/WEExtractor/releases/latest)
+[![Лицензия](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+Код проекта — **MIT** ([`LICENSE`](LICENSE)). RePKG — отдельный проект со своей лицензией, см. папку `repkg/` в сборке.
 
 ---
 
