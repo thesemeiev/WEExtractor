@@ -1,0 +1,9 @@
+.venv-build/
+build/
+dist/
+*.spec
+__pycache__/
+*.py[cod]
+.build-repkg-src/
+third_party/repkg/linux/
+third_party/repkg/win/
