@@ -2,9 +2,10 @@
 
 ## Скачать (без установки Python)
 
-Готовые портативные сборки лежат в разделе **Releases** твоего репозитория на GitHub: открой страницу репозитория → **Releases** → последняя версия → скачай архив для Windows (zip) или Linux (zip/tar.gz), распакуй и запусти `Run.sh` / `PKG-Extractor.exe`.
+- **Последний релиз:** [github.com/thesemeiev/WEExtractor/releases/latest](https://github.com/thesemeiev/WEExtractor/releases/latest) — скачай zip для Windows или Linux, распакуй и запусти `Run.sh` / `PKG-Extractor.exe`.
+- **Исходники:** [github.com/thesemeiev/WEExtractor](https://github.com/thesemeiev/WEExtractor) (`git clone`).
 
-Исходный код клонируется отдельно; для пользователей достаточно релиза.
+Пока в Releases нет файлов — собери портативку скриптами `build_portable_linux.sh` / `build_portable_windows.ps1` и [опубликуй первый релиз](https://github.com/thesemeiev/WEExtractor/releases/new) с прикреплёнными архивами.
 
 ---
 
